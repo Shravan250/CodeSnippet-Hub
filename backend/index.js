@@ -1,7 +1,9 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { Prisma } = require("@prisma/client");
+const { PrismaClient } = require("@prisma/client");
+
+const prisma = new PrismaClient();
 
 const app = express();
 app.use(cors());
@@ -12,8 +14,12 @@ app.get("/", (req, res) => {
 });
 
 app.get("/snippets", async (req, res) => {
-  const snippets = await Prisma.snippets.findMany();
-  res.json(snippets);
+  try {
+    const snippets = await prisma.snippet.findMany();
+    res.json(snippets);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch snippets" });
+  }
 });
 
 const PORT = process.env.PORT || 5001;
